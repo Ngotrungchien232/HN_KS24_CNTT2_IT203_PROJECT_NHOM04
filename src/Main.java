@@ -1,6 +1,6 @@
 import presentation.MainMenu;
-import presentation.admin.CategoryMenu;
 import util.DBConnection;
+
 import java.sql.Connection;
 
 public class Main {
@@ -8,11 +8,9 @@ public class Main {
         Connection conn = DBConnection.getConnection();
 
         if (conn != null) {
-            System.out.println(" Sẵn sàng hoạt động!");
+            System.out.println(" San sang hoat dong!");
         }
         new MainMenu().show();
-        new CategoryMenu().show();
         DBConnection.closeConnection();
-
     }
 }

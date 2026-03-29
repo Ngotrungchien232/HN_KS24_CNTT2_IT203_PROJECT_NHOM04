@@ -57,16 +57,61 @@ public class MainMenu {
 
     private void register() {
         System.out.println("\n--- DANG KY ---");
-        System.out.print("Ten dang nhap: ");
-        String username = scanner.nextLine();
-        System.out.print("Mat khau (it nhat 6 ky tu): ");
-        String password = scanner.nextLine();
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
-        System.out.print("So dien thoai (10 so): ");
-        String phone = scanner.nextLine();
-        System.out.print("Dia chi giao hang: ");
-        String address = scanner.nextLine();
+
+        String username;
+        do {
+            System.out.print("Ten dang nhap: ");
+            username = scanner.nextLine();
+            String err = authService.validateUsernameForRegister(username);
+            if (err == null) {
+                break;
+            }
+            System.out.println(err);
+        } while (true);
+
+        String password;
+        do {
+            System.out.print("Mat khau (it nhat 6 ky tu): ");
+            password = scanner.nextLine();
+            String err = authService.validatePasswordForRegister(password);
+            if (err == null) {
+                break;
+            }
+            System.out.println(err);
+        } while (true);
+
+        String email;
+        do {
+            System.out.print("Email: ");
+            email = scanner.nextLine();
+            String err = authService.validateEmailForRegister(email);
+            if (err == null) {
+                break;
+            }
+            System.out.println(err);
+        } while (true);
+
+        String phone;
+        do {
+            System.out.print("So dien thoai (10 so): ");
+            phone = scanner.nextLine();
+            String err = authService.validatePhoneForRegister(phone);
+            if (err == null) {
+                break;
+            }
+            System.out.println(err);
+        } while (true);
+
+        String address;
+        do {
+            System.out.print("Dia chi giao hang: ");
+            address = scanner.nextLine();
+            String err = authService.validateAddressForRegister(address);
+            if (err == null) {
+                break;
+            }
+            System.out.println(err);
+        } while (true);
 
         if (authService.register(username, password, email, phone, address)) {
             System.out.println("Dang ky thanh cong! Vui long dang nhap.");

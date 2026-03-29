@@ -26,6 +26,36 @@ public class UserDAO {
         return null;
     }
 
+    public User findByEmail(String email) {
+        String sql = "SELECT * FROM users WHERE email = ?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapRow(rs);
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi tim email: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public User findByPhone(String phone) {
+        String sql = "SELECT * FROM users WHERE phone = ?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, phone);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapRow(rs);
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi tim so dien thoai: " + e.getMessage());
+        }
+        return null;
+    }
+
     public boolean register(String username, String password,
                             String email, String phone,
                             String address, String role) {

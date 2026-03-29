@@ -9,6 +9,24 @@ public class ProductService {
 
     private ProductDAO productDAO = new ProductDAO();
 
+    /** San pham con hang (khong loc) */
+    public List<Product> getAvailable() {
+        return productDAO.getAvailable();
+    }
+
+    /** Loc theo hang va/hoac gia (tham so null = bo qua dieu kien do) */
+    public List<Product> getAvailableWithFilters(String brand, Double minPrice, Double maxPrice) {
+        return productDAO.findAvailableWithFilters(brand, minPrice, maxPrice);
+    }
+
+    public List<String> getDistinctBrands() {
+        return productDAO.getDistinctBrands();
+    }
+
+    public Product findById(int id) {
+        return productDAO.findById(id);
+    }
+
     // Lấy tất cả sản phẩm
     public List<Product> getAll() {
         return productDAO.getAll();

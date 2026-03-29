@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourcePerFileMappings">
-    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/8e01fcca-6138-4db7-a398-4a18eaeb062b/console.sql" value="8e01fcca-6138-4db7-a398-4a18eaeb062b" />
+    <file url="file://$PROJECT_DIR$/src/dao/ProductDAO.java" value="8e01fcca-6138-4db7-a398-4a18eaeb062b" />
   </component>
 </project>
