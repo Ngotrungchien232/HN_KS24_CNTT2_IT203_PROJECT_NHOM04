@@ -6,6 +6,8 @@ public class OrderDetail {
     private int productId;
     private int quantity;
     private double priceAtTime;
+    /** Ten san pham (JOIN products) */
+    private String productName;
 
     public OrderDetail() {
     }
@@ -56,5 +58,13 @@ public class OrderDetail {
 
     public void setPriceAtTime(double priceAtTime) {
         this.priceAtTime = priceAtTime;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 }

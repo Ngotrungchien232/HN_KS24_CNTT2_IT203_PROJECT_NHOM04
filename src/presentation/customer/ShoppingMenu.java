@@ -76,24 +76,63 @@ public class ShoppingMenu {
         Double minPrice = readOptionalDouble("Gia thap nhat: ");
         Double maxPrice = readOptionalDouble("Gia cao nhat: ");
 
-        List<Product> list = productService.getAvailableWithFilters(brand, minPrice, maxPrice);
-        if (list.isEmpty()) {
+        System.out.print("Tu khoa (ten hoac hang, de trong = khong tim theo chuoi): ");
+        String keyword = scanner.nextLine().trim();
+        if (keyword.isEmpty()) {
+            keyword = null;
+        }
+
+        int sortMode = readSortMode();
+
+        int total = productService.countAvailableWithFilters(brand, minPrice, maxPrice, keyword);
+        if (total == 0) {
             System.out.println("Khong co san pham nao phu hop.");
             return;
         }
 
-        System.out.println("\n--- Danh sach san pham ---");
-        System.out.printf("%-4s %-20s %-12s %-10s %-10s %-10s%n",
-                "ID", "Ten", "Hang", "Dung luong", "Gia", "Ton");
-        System.out.println("----------------------------------------------------------------------");
-        for (Product p : list) {
-            System.out.printf("%-4d %-20s %-12s %-10s %,.0f %10d%n",
-                    p.getId(),
-                    truncate(p.getName(), 20),
-                    p.getBrand(),
-                    p.getStorage(),
-                    p.getPrice(),
-                    p.getStock());
+        int totalPages = ProductService.calcTotalPages(total);
+        int page = 1;
+
+        while (true) {
+            List<Product> list = productService.getAvailableWithFiltersPage(brand, minPrice, maxPrice, keyword, sortMode, page);
+
+            System.out.println("\n--- Danh sach san pham ---");
+            System.out.printf("%-4s %-20s %-12s %-10s %-10s %-10s%n",
+                    "ID", "Ten", "Hang", "Dung luong", "Gia", "Ton");
+            System.out.println("----------------------------------------------------------------------");
+            for (Product p : list) {
+                System.out.printf("%-4d %-20s %-12s %-10s %,.0f %10d%n",
+                        p.getId(),
+                        truncate(p.getName(), 20),
+                        p.getBrand(),
+                        p.getStorage(),
+                        p.getPrice(),
+                        p.getStock());
+            }
+
+            System.out.println("--- Trang " + page + "/" + totalPages
+                    + " | " + ProductService.PAGE_SIZE + " SP/trang | Tong " + total + " san pham ---");
+            System.out.println("n: trang sau | p: trang truoc | go so trang (1-" + totalPages + ") | 0: xong xem");
+            String cmd = scanner.nextLine().trim().toLowerCase();
+            if (cmd.equals("0")) {
+                break;
+            }
+            if (cmd.equals("n")) {
+                page = Math.min(totalPages, page + 1);
+            } else if (cmd.equals("p")) {
+                page = Math.max(1, page - 1);
+            } else {
+                try {
+                    int go = Integer.parseInt(cmd);
+                    if (go >= 1 && go <= totalPages) {
+                        page = go;
+                    } else {
+                        System.out.println("Trang khong hop le!");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Nhap n, p, so trang, hoac 0.");
+                }
+            }
         }
     }
 
@@ -198,6 +237,25 @@ public class ShoppingMenu {
             cart.clear();
             System.out.println("Cam on ban da dat hang!");
         }
+    }
+
+    /** 0 = ma SP; 1 = gia tang; 2 = gia giam */
+    private int readSortMode() {
+        System.out.println("Sap xep: 0 = ma san pham | 1 = gia tang dan | 2 = gia giam dan");
+        System.out.print("Chon (Enter = 0): ");
+        String s = scanner.nextLine().trim();
+        if (s.isEmpty()) {
+            return 0;
+        }
+        try {
+            int m = Integer.parseInt(s);
+            if (m >= 0 && m <= 2) {
+                return m;
+            }
+        } catch (NumberFormatException ignored) {
+        }
+        System.out.println("Khong hop le, dung mac dinh 0.");
+        return 0;
     }
 
     private Double readOptionalDouble(String prompt) {

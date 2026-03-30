@@ -7,16 +7,78 @@ import java.util.List;
 
 public class ProductService {
 
+    /** So san pham moi trang (phan trang) */
+    public static final int PAGE_SIZE = 10;
+
     private ProductDAO productDAO = new ProductDAO();
+
+    public static int calcTotalPages(int totalItems) {
+        if (totalItems <= 0) {
+            return 0;
+        }
+        return (totalItems + PAGE_SIZE - 1) / PAGE_SIZE;
+    }
 
     /** San pham con hang (khong loc) */
     public List<Product> getAvailable() {
         return productDAO.getAvailable();
     }
 
-    /** Loc theo hang va/hoac gia (tham so null = bo qua dieu kien do) */
-    public List<Product> getAvailableWithFilters(String brand, Double minPrice, Double maxPrice) {
-        return productDAO.findAvailableWithFilters(brand, minPrice, maxPrice);
+    /**
+     * Loc theo hang / gia / tu khoa (ten hoac hang); sortMode: 0 ma SP, 1 gia tang, 2 gia giam.
+     */
+    public List<Product> getAvailableWithFilters(String brand, Double minPrice, Double maxPrice,
+                                                 String keyword, int sortMode) {
+        return productDAO.findAvailableWithFilters(brand, minPrice, maxPrice, keyword, sortMode);
+    }
+
+    public int countAvailableWithFilters(String brand, Double minPrice, Double maxPrice, String keyword) {
+        return productDAO.countAvailableWithFilters(brand, minPrice, maxPrice, keyword);
+    }
+
+    /** Trang bat dau tu 1 */
+    public List<Product> getAvailableWithFiltersPage(String brand, Double minPrice, Double maxPrice,
+                                                     String keyword, int sortMode, int pageOneBased) {
+        int p = Math.max(1, pageOneBased);
+        int offset = (p - 1) * PAGE_SIZE;
+        return productDAO.findAvailableWithFiltersPaged(brand, minPrice, maxPrice, keyword, sortMode, offset, PAGE_SIZE);
+    }
+
+    public int countAdminProductsWithFilters(String keyword, String brand, Double minPrice, Double maxPrice) {
+        return productDAO.countAdminProductsWithFilters(keyword, brand, minPrice, maxPrice);
+    }
+
+    public List<Product> getAdminProductsWithFiltersPage(String keyword, String brand, Double minPrice,
+                                                         Double maxPrice, int sortMode, int pageOneBased) {
+        int p = Math.max(1, pageOneBased);
+        int offset = (p - 1) * PAGE_SIZE;
+        return productDAO.findAdminProductsWithFiltersPaged(keyword, brand, minPrice, maxPrice, sortMode, offset, PAGE_SIZE);
+    }
+
+    public int countAllProducts() {
+        return productDAO.countAll();
+    }
+
+    public List<Product> getAllPage(int pageOneBased) {
+        int p = Math.max(1, pageOneBased);
+        int offset = (p - 1) * PAGE_SIZE;
+        return productDAO.getAllPaged(offset, PAGE_SIZE);
+    }
+
+    public int countSearchByNameForPaging(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return 0;
+        }
+        return productDAO.countSearchByName(keyword.trim());
+    }
+
+    public List<Product> searchByNamePage(String keyword, int pageOneBased) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return List.of();
+        }
+        int p = Math.max(1, pageOneBased);
+        int offset = (p - 1) * PAGE_SIZE;
+        return productDAO.searchByNamePaged(keyword.trim(), offset, PAGE_SIZE);
     }
 
     public List<String> getDistinctBrands() {

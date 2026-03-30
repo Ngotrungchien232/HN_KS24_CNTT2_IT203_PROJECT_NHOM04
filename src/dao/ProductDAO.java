@@ -96,15 +96,12 @@ public class ProductDAO {
     }
 
     /**
-     * San pham con hang, loc theo hang va/hoac khoang gia.
-     * brand == null hoac rong: khong loc hang.
-     * minPrice / maxPrice == null: khong gioi han phia do.
+     * Dieu kien loc: con hang + tuy chon hang / khoang gia / tu khoa (ten hoac hang).
      */
-    public List<Product> findAvailableWithFilters(String brand, Double minPrice, Double maxPrice) {
-        List<Product> list = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM products WHERE stock > 0");
-        List<Object> params = new ArrayList<>();
-
+    private void appendAvailableFilterConditions(StringBuilder sql, List<Object> params,
+                                               String brand, Double minPrice, Double maxPrice,
+                                               String keyword) {
+        sql.append(" WHERE stock > 0");
         if (brand != null && !brand.trim().isEmpty()) {
             sql.append(" AND brand = ?");
             params.add(brand.trim());
@@ -117,24 +114,240 @@ public class ProductDAO {
             sql.append(" AND price <= ?");
             params.add(maxPrice);
         }
-        sql.append(" ORDER BY id");
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND (name LIKE ? OR brand LIKE ?)");
+            String k = "%" + keyword.trim() + "%";
+            params.add(k);
+            params.add(k);
+        }
+    }
+
+    /** 0 = ma SP; 1 = gia tang; 2 = gia giam */
+    private void appendOrderBySort(StringBuilder sql, int sortMode) {
+        switch (sortMode) {
+            case 1:
+                sql.append(" ORDER BY price ASC");
+                break;
+            case 2:
+                sql.append(" ORDER BY price DESC");
+                break;
+            default:
+                sql.append(" ORDER BY id ASC");
+        }
+    }
+
+    /**
+     * Loc san pham (admin): khong bat buoc con hang.
+     */
+    private void appendAdminProductConditions(StringBuilder sql, List<Object> params,
+                                              String keyword, String brand, Double minPrice, Double maxPrice) {
+        sql.append(" WHERE 1=1");
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND (name LIKE ? OR brand LIKE ?)");
+            String k = "%" + keyword.trim() + "%";
+            params.add(k);
+            params.add(k);
+        }
+        if (brand != null && !brand.trim().isEmpty()) {
+            sql.append(" AND brand = ?");
+            params.add(brand.trim());
+        }
+        if (minPrice != null) {
+            sql.append(" AND price >= ?");
+            params.add(minPrice);
+        }
+        if (maxPrice != null) {
+            sql.append(" AND price <= ?");
+            params.add(maxPrice);
+        }
+    }
+
+    public int countAdminProductsWithFilters(String keyword, String brand, Double minPrice, Double maxPrice) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products");
+        List<Object> params = new ArrayList<>();
+        appendAdminProductConditions(sql, params, keyword, brand, minPrice, maxPrice);
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql.toString());
+            setParams(ps, params);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi dem san pham (admin): " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public List<Product> findAdminProductsWithFiltersPaged(String keyword, String brand, Double minPrice,
+                                                           Double maxPrice, int sortMode, int offset, int limit) {
+        List<Product> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM products");
+        List<Object> params = new ArrayList<>();
+        appendAdminProductConditions(sql, params, keyword, brand, minPrice, maxPrice);
+        appendOrderBySort(sql, sortMode);
+        sql.append(" LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql.toString());
+            setParams(ps, params);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi loc san pham (admin): " + e.getMessage());
+        }
+        return list;
+    }
+
+    private void setParams(PreparedStatement ps, List<Object> params) throws SQLException {
+        for (int i = 0; i < params.size(); i++) {
+            Object p = params.get(i);
+            if (p instanceof Double) {
+                ps.setDouble(i + 1, (Double) p);
+            } else if (p instanceof Integer) {
+                ps.setInt(i + 1, (Integer) p);
+            } else {
+                ps.setString(i + 1, p.toString());
+            }
+        }
+    }
+
+    /** Tong so san pham thoa dieu kien loc (dung tinh so trang). */
+    public int countAvailableWithFilters(String brand, Double minPrice, Double maxPrice, String keyword) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products");
+        List<Object> params = new ArrayList<>();
+        appendAvailableFilterConditions(sql, params, brand, minPrice, maxPrice, keyword);
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql.toString());
+            setParams(ps, params);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi dem san pham: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    /**
+     * San pham con hang, loc + phan trang (offset bat dau tu 0).
+     */
+    public List<Product> findAvailableWithFiltersPaged(String brand, Double minPrice, Double maxPrice,
+                                                       String keyword, int sortMode,
+                                                       int offset, int limit) {
+        List<Product> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM products");
+        List<Object> params = new ArrayList<>();
+        appendAvailableFilterConditions(sql, params, brand, minPrice, maxPrice, keyword);
+        appendOrderBySort(sql, sortMode);
+        sql.append(" LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql.toString());
-            for (int i = 0; i < params.size(); i++) {
-                Object p = params.get(i);
-                if (p instanceof Double) {
-                    ps.setDouble(i + 1, (Double) p);
-                } else {
-                    ps.setString(i + 1, p.toString());
-                }
-            }
+            setParams(ps, params);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
         } catch (SQLException e) {
             System.out.println("Loi khi loc san pham: " + e.getMessage());
+        }
+        return list;
+    }
+
+    /**
+     * San pham con hang, loc day du (khong LIMIT) — dung khi can tat ca ket qua loc.
+     */
+    public List<Product> findAvailableWithFilters(String brand, Double minPrice, Double maxPrice,
+                                                  String keyword, int sortMode) {
+        List<Product> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM products");
+        List<Object> params = new ArrayList<>();
+        appendAvailableFilterConditions(sql, params, brand, minPrice, maxPrice, keyword);
+        appendOrderBySort(sql, sortMode);
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql.toString());
+            setParams(ps, params);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi loc san pham: " + e.getMessage());
+        }
+        return list;
+    }
+
+    /** Tong so san pham (admin). */
+    public int countAll() {
+        String sql = "SELECT COUNT(*) FROM products";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi dem san pham: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public List<Product> getAllPaged(int offset, int limit) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT * FROM products ORDER BY id LIMIT ? OFFSET ?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi lay san pham: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public int countSearchByName(String keyword) {
+        if (keyword == null) {
+            return 0;
+        }
+        String sql = "SELECT COUNT(*) FROM products WHERE name LIKE ?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, "%" + keyword.trim() + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi dem ket qua tim kiem: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public List<Product> searchByNamePaged(String keyword, int offset, int limit) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT * FROM products WHERE name LIKE ? ORDER BY id LIMIT ? OFFSET ?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, "%" + keyword.trim() + "%");
+            ps.setInt(2, limit);
+            ps.setInt(3, offset);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi tim san pham: " + e.getMessage());
         }
         return list;
     }

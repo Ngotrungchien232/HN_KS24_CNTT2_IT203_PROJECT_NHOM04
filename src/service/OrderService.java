@@ -2,6 +2,8 @@ package service;
 
 import dao.OrderDAO;
 import model.CartItem;
+import model.Order;
+import model.OrderDetail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +13,6 @@ public class OrderService {
 
     private OrderDAO orderDAO = new OrderDAO();
 
-    /**
-     * Dat hang tu gio: Map productId -> so luong.
-     */
     public boolean placeOrderFromCart(int customerId, Map<Integer, Integer> cart) {
         if (cart == null || cart.isEmpty()) {
             System.out.println("Gio hang trong!");
@@ -34,5 +33,25 @@ public class OrderService {
         }
 
         return orderDAO.placeOrder(customerId, lines);
+    }
+
+    public List<Order> getAllOrders() {
+        return orderDAO.findAllOrders();
+    }
+
+    public List<Order> getOrdersByCustomer(int customerId) {
+        return orderDAO.findOrdersByCustomer(customerId);
+    }
+
+    public Order findOrderById(int orderId) {
+        return orderDAO.findOrderById(orderId);
+    }
+
+    public List<OrderDetail> getOrderDetails(int orderId) {
+        return orderDAO.findDetailsByOrderId(orderId);
+    }
+
+    public boolean updateOrderStatus(int orderId, String newStatus) {
+        return orderDAO.updateOrderStatus(orderId, newStatus);
     }
 }
