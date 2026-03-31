@@ -33,38 +33,31 @@ public class AuthService {
     }
 
 //    public User login(String email, String password) {
-//
 //        // Kiem tra email khong trong
 //        if (email == null || email.trim().isEmpty()) {
 //            System.out.println("Email khong duoc de trong!");
 //            return null;
 //        }
-//
 //        // Kiem tra password khong trong
 //        if (password == null || password.trim().isEmpty()) {
 //            System.out.println("Mat khau khong duoc de trong!");
 //            return null;
 //        }
-//
 //        // Kiem tra dinh dang email hop le
 //        if (!ValidationUtil.isValidEmail(email)) {
 //            System.out.println("Email khong dung dinh dang!");
 //            return null;
 //        }
-//
 //        // Tim user theo email thay vi username
 //        User user = userDAO.findByEmail(email.toLowerCase().trim());
-//
 //        if (user == null) {
 //            System.out.println("Email khong ton tai!");
 //            return null;
 //        }
-//
 //        if (!PasswordUtil.checkPassword(password, user.getPassword())) {
 //            System.out.println("Mat khau khong dung!");
 //            return null;
 //        }
-//
 //        return user;
 //    }
 

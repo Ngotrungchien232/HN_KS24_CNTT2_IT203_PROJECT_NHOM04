@@ -4,6 +4,7 @@ import dao.OrderDAO;
 import model.CartItem;
 import model.Order;
 import model.OrderDetail;
+import model.ProductSalesStats;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,5 +54,23 @@ public class OrderService {
 
     public boolean updateOrderStatus(int orderId, String newStatus) {
         return orderDAO.updateOrderStatus(orderId, newStatus);
+    }
+
+    /**
+     * Top san pham ban chay trong thang (chi tinh don da giao thanh cong).
+     */
+    public List<ProductSalesStats> getTopSellingProductsByMonth(int month, int year, int limit) {
+        if (month < 1 || month > 12) {
+            System.out.println("Thang khong hop le (1-12).");
+            return List.of();
+        }
+        if (year < 2000) {
+            System.out.println("Nam khong hop le.");
+            return List.of();
+        }
+        if (limit <= 0) {
+            limit = 5;
+        }
+        return orderDAO.findTopSellingProductsByMonth(month, year, limit);
     }
 }

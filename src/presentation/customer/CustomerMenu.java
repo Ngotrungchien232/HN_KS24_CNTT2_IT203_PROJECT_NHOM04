@@ -3,6 +3,8 @@
 package presentation.customer;
 
 import model.User;
+import presentation.ReportMenu;
+
 import java.util.Scanner;
 
 public class CustomerMenu {
@@ -21,6 +23,7 @@ public class CustomerMenu {
             System.out.println("Xin chao: " + currentUser.getUsername());
             System.out.println("1. Mua sam");
             System.out.println("2. Lich su don hang");
+            System.out.println("3. Xem Top 5 san pham ban chay trong thang");
             System.out.println("0. Dang xuat");
             System.out.print("Chon: ");
 
@@ -30,6 +33,8 @@ public class CustomerMenu {
                 new ShoppingMenu(currentUser).show();
             } else if (choice == 2) {
                 new OrderHistoryMenu(currentUser).show();
+            } else if (choice == 3) {
+                new ReportMenu().showTop5BestSellingOfMonth();
             } else if (choice == 0) {
                 System.out.println("Da dang xuat!");
             } else {

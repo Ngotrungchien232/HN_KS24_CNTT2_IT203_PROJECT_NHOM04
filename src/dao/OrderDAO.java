@@ -3,6 +3,7 @@ package dao;
 import model.CartItem;
 import model.Order;
 import model.OrderDetail;
+import model.ProductSalesStats;
 import util.DBConnection;
 
 import java.sql.Connection;
@@ -328,6 +329,50 @@ public class OrderDAO {
         Timestamp ts = rs.getTimestamp("created_at");
         o.setCreatedAt(ts != null ? ts.toString() : "");
         return o;
+    }
+
+    /**
+     * Top san pham ban chay trong 1 thang, chi tinh don o trang thai DELIVERED.
+     *
+     * @param month thang (1-12)
+     * @param year  nam (VD: 2026)
+     * @param limit so san pham muon lay (VD: 5)
+     */
+    public List<ProductSalesStats> findTopSellingProductsByMonth(int month, int year, int limit) {
+        List<ProductSalesStats> list = new ArrayList<>();
+        String sql =
+                "SELECT p.id, p.name, p.brand, " +
+                        "SUM(od.quantity) AS total_qty, " +
+                        "SUM(od.quantity * od.price_at_time) AS total_revenue " +
+                        "FROM orders o " +
+                        "JOIN order_details od ON o.id = od.order_id " +
+                        "JOIN products p ON od.product_id = p.id " +
+                        "WHERE o.status = 'DELIVERED' " +
+                        "AND MONTH(o.created_at) = ? " +
+                        "AND YEAR(o.created_at) = ? " +
+                        "GROUP BY p.id, p.name, p.brand " +
+                        "ORDER BY total_qty DESC " +
+                        "LIMIT ?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, month);
+            ps.setInt(2, year);
+            ps.setInt(3, limit);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                ProductSalesStats s = new ProductSalesStats(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("brand"),
+                        rs.getInt("total_qty"),
+                        rs.getDouble("total_revenue")
+                );
+                list.add(s);
+            }
+        } catch (SQLException e) {
+            System.out.println("Loi khi thong ke san pham ban chay: " + e.getMessage());
+        }
+        return list;
     }
 
     private static void rollbackQuiet(Connection conn) {

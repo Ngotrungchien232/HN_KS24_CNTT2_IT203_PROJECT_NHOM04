@@ -2,6 +2,8 @@
 
 package presentation.admin;
 
+import presentation.ReportMenu;
+
 import java.util.Scanner;
 
 public class AdminMenu {
@@ -15,6 +17,7 @@ public class AdminMenu {
             System.out.println("1. Quan ly Danh muc");
             System.out.println("2. Quan ly San pham");
             System.out.println("3. Quan ly Don hang");
+            System.out.println("4. Bao cao thong ke");
             System.out.println("0. Dang xuat");
             System.out.print("Chon: ");
 
@@ -26,6 +29,8 @@ public class AdminMenu {
                 new ProductMenu().show();
             } else if (choice == 3) {
                 new OrderMenu().show();
+            } else if (choice == 4) {
+                new ReportMenu().showTop5BestSellingOfMonth();
             } else if (choice == 0) {
                 System.out.println("Da dang xuat!");
             } else {
