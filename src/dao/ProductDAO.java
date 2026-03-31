@@ -13,7 +13,10 @@ public class ProductDAO {
 
     // Lấy toàn bộ sản phẩm
     public List<Product> getAll() {
+
         List<Product> list = new ArrayList<>();
+
+//        String sql = "SELECT * FROM products ORDER BY stock ASC";
         String sql = "SELECT * FROM products";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -29,10 +32,17 @@ public class ProductDAO {
 
     // Lấy sản phẩm còn hàng — dùng cho Customer
     public List<Product> getAvailable() {
+
         List<Product> list = new ArrayList<>();
+        //List<Product> list = new ArrayList<>(int offset, int limit);
+
+        //String sql = "SELECT * FROM products WHERE stock > 0 ORDER BY stock ASC";
         String sql = "SELECT * FROM products WHERE stock > 0";
+        //String sql = "SELECT *FROM products ORDER BY price ASC LIMIT ? OFFSET ?";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
+            //ps.setInt(1, limit);
+            //ps.setInt(2, offset);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -47,6 +57,8 @@ public class ProductDAO {
     public List<Product> searchByName(String keyword) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE name LIKE ?";
+
+        //String sql = "SELECT * FROM products WHERE name LIKE ? ORDER BY stock ASC";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, "%" + keyword + "%");
@@ -64,6 +76,7 @@ public class ProductDAO {
     public List<Product> filterByBrand(String brand) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE brand = ? AND stock > 0";
+        //String sql = "SELECT * FROM products WHERE brand = ? AND stock > 0 ORDER BY stock ASC";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, brand);
@@ -300,7 +313,12 @@ public class ProductDAO {
     }
 
     public List<Product> getAllPaged(int offset, int limit) {
+// admin
         List<Product> list = new ArrayList<>();
+        // thay đổi stock, storage.
+        // nếu muốn vừa sắp xếp theo giá và tồn kho thì
+        // Sắp xếp theo giá trước, rồi tồn kho
+        //String sql = "SELECT * FROM products ORDER BY price ASC, stock DESC LIMIT ? OFFSET ?";
         String sql = "SELECT * FROM products ORDER BY id LIMIT ? OFFSET ?";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -356,6 +374,7 @@ public class ProductDAO {
     public List<Product> filterByPrice(double minPrice, double maxPrice) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE price BETWEEN ? AND ? AND stock > 0";
+        //String sql = "SELECT * FROM products WHERE price BETWEEN ? AND ? AND stock > 0 ORDER BY stock ASC";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setDouble(1, minPrice);

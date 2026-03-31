@@ -7,8 +7,8 @@ import java.util.List;
 
 public class ProductService {
 
-    /** So san pham moi trang (phan trang) */
-    public static final int PAGE_SIZE = 10;
+  // phân trang số lượng sản phẩm trên một trang
+    public static final int PAGE_SIZE = 5;
 
     private ProductDAO productDAO = new ProductDAO();
 
