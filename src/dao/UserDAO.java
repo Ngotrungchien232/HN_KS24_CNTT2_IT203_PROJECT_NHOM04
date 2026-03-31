@@ -13,6 +13,7 @@ public class UserDAO {
 
     public User findByUsername(String username) {
         String sql = "SELECT * FROM users WHERE username = ?";
+        //String sql = "SELECT * FROM users WHERE BINARY username = ?";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, username);
@@ -40,6 +41,21 @@ public class UserDAO {
         }
         return null;
     }
+    // Tìm user theo email
+//    public User findByEmail(String email) {
+//        String sql = "SELECT * FROM users WHERE email = ?";
+//        try {
+//            PreparedStatement ps = conn.prepareStatement(sql);
+//            ps.setString(1, email.toLowerCase().trim());
+//            ResultSet rs = ps.executeQuery();
+//            if (rs.next()) {
+//                return mapRow(rs);
+//            }
+//        } catch (SQLException e) {
+//            System.out.println("Loi khi tim user theo email: " + e.getMessage());
+//        }
+//        return null;
+//    }
 
     public User findByPhone(String phone) {
         String sql = "SELECT * FROM users WHERE phone = ?";

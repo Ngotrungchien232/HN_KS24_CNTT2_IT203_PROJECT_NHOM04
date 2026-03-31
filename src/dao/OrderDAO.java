@@ -149,12 +149,12 @@ public class OrderDAO {
 
     // ----- Doc don hang (admin / khach) -----
 
-    /** Tat ca don (admin), moi nhat truoc — khong phan trang. */
+   //Tat ca don (admin), moi nhat truoc
     public List<Order> findAllOrders() {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT o.id, o.customer_id, o.total_price, o.status, o.created_at, u.username "
                 + "FROM orders o JOIN users u ON o.customer_id = u.id "
-                + "ORDER BY o.created_at DESC";
+                + "ORDER BY o.created_at ASC"; // thay ASC nếu muốn đổi thứ tự
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -167,7 +167,7 @@ public class OrderDAO {
         return list;
     }
 
-    /** Don cua mot khach — khong phan trang. */
+    /** Don cua mot khach */
     public List<Order> findOrdersByCustomer(int customerId) {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM orders WHERE customer_id = ? ORDER BY created_at DESC";
