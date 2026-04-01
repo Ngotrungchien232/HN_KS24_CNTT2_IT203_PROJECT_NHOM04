@@ -6,7 +6,15 @@ public class ValidationUtil {
         if (phone == null) {
             return false;
         }
-        return phone.matches("^0[0-9]{9}$");
+        // Kiểm tra format trước
+        if (!phone.matches("^0[0-9]{9}$")) {
+            return false;
+        }
+        // Không được tất cả 0
+        if (phone.equals("0000000000")) {
+            return false;
+        }
+        return true;
     }
 
     public static boolean isValidEmail(String email) {

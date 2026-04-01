@@ -31,6 +31,11 @@ public class AuthService {
         }
         return user;
     }
+//        if (!ValidationUtil.isValidEmail(email)) {
+//            System.out.println("Email khong dung dinh dang!");
+//            return null;
+//        }
+
 
 //    public User login(String email, String password) {
 //        // Kiem tra email khong trong

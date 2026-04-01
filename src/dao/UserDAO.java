@@ -27,6 +27,7 @@ public class UserDAO {
         return null;
     }
 
+
     public User findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
         try {

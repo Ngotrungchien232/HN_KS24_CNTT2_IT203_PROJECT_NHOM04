@@ -16,7 +16,7 @@ public class ProductDAO {
 
         List<Product> list = new ArrayList<>();
 
-//        String sql = "SELECT * FROM products ORDER BY stock ASC";
+        //String sql = "SELECT * FROM products ORDER BY stock ASC";
         String sql = "SELECT * FROM products";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -29,6 +29,8 @@ public class ProductDAO {
         }
         return list;
     }
+
+
 
     // Lấy sản phẩm còn hàng — dùng cho Customer
     public List<Product> getAvailable() {
@@ -152,6 +154,7 @@ public class ProductDAO {
     /**
      * Loc san pham (admin): khong bat buoc con hang.
      */
+
     private void appendAdminProductConditions(StringBuilder sql, List<Object> params,
                                               String keyword, String brand, Double minPrice, Double maxPrice) {
         sql.append(" WHERE 1=1");
@@ -176,7 +179,7 @@ public class ProductDAO {
     }
 
     public int countAdminProductsWithFilters(String keyword, String brand, Double minPrice, Double maxPrice) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products ");
         List<Object> params = new ArrayList<>();
         appendAdminProductConditions(sql, params, keyword, brand, minPrice, maxPrice);
         try {
@@ -320,6 +323,7 @@ public class ProductDAO {
         // Sắp xếp theo giá trước, rồi tồn kho
         //String sql = "SELECT * FROM products ORDER BY price ASC, stock DESC LIMIT ? OFFSET ?";
         String sql = "SELECT * FROM products ORDER BY id LIMIT ? OFFSET ?";
+//            String sql = "SELECT * FROM products  WHERE BRAND = 'Apple'";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, limit);
